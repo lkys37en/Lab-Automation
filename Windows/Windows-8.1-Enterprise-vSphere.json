@@ -1,0 +1,121 @@
+{
+  "variables": {
+    "iso_url": "./ISO/en_windows_8.1_x64-1-15-19.iso",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "703576939E2878132BD5A0BCE67AEF2D",
+    "disk_size": "61440",
+    "autounattend": "./Answer-files/8.1_Enterprise/Autounattend.xml",
+    "sysprep": "./Answer-files/8.1_Enterprise/Autounattend_sysprep.xml",
+    "template_name": "Win8x64-Template",
+    "winrm_username": "Administrator",
+    "winrm_password": "Welcome1!",
+    "output_directory": "Win8-Enterprise-Output"
+
+  },
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "communicator": "winrm",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "boot_wait": "2m",
+      "winrm_username": "{{user `winrm_username`}}",
+      "winrm_password": "{{user `winrm_password`}}",
+      "winrm_timeout": "2h",
+      "shutdown_timeout": "2h",
+      "shutdown_command": "a:\\sysprep.bat",
+      "guest_os_type": "windows8srv-64",
+      "disk_size": 61440,
+      "vnc_port_min": 5900,
+      "vnc_port_max": 5980,
+      "version": 11,
+      "output_directory":"{{user `output_directory`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/sysprep.bat",
+        "./scripts/fixnetwork.ps1",
+        "./scripts/Enable-Winrm.ps1"
+      ],
+      "vmx_data": {
+        "memsize": "2048",
+        "numvcpus": "2",
+        "scsi0.virtualDev": "lsisas1068"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `sysprep`}}",
+      "destination": "c:/Windows/Temp/Autounattend_sysprep.xml"
+    },
+    {
+      "type": "powershell",
+      "elevated_user": "{{user `winrm_username`}}",
+      "elevated_password": "{{user `winrm_password`}}",
+      "scripts": [
+        "./scripts/Install-VMwareTools.ps1",
+        "./scripts/Enable-CredSSP.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "windows-update",
+      "filters": [
+        "include:$true"
+      ]
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "elevated_user": "{{user `winrm_username`}}",
+      "elevated_password": "{{user `winrm_password`}}",
+      "scripts": [
+        "./scripts/Install-NetFramework4.7.2.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "elevated_user": "{{user `winrm_username`}}",
+      "elevated_password": "{{user `winrm_password`}}",
+      "scripts": [
+        "./scripts/Install-WMF51.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "type": "windows-update",
+      "filters": [
+        "include:$true"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+     "type": "vsphere",
+     "host": "vcenter.lstra.com",
+     "username": "administrator@vsphere.local",
+     "password": "Welcome1!",
+     "insecure": "true",
+     "cluster": "esxi-prod.lstra.com",
+     "datacenter":"lstra",
+     "datastore": "Templates",
+     "vm_name": "{{user `template_name`}}",
+     "vm_folder": "Templates", 
+     "disk_mode": "thin",
+     "vm_network": "HTB",
+     "overwrite": "true"
+   }
+  ]
+}

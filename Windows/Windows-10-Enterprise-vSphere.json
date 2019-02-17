@@ -1,0 +1,91 @@
+{
+  "variables": {
+    "iso_url": "./ISO/en_windows_10_x64_12-02-18.iso",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "CE7954EAEE1A7FE4D24F31A57F0D93F8",
+    "disk_size": "61440",
+    "autounattend": "./Answer-files/10_Enterprise/Autounattend.xml",
+    "sysprep": "./Answer-files/10_Enterprise/Autounattend_sysprep.xml",
+    "template_name": "Win10x64-Template",
+    "winrm_username": "Administrator",
+    "winrm_password": "Welcome1!",
+    "output_directory":"Win10-Enterprise-Output"
+  },
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "communicator": "winrm",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "boot_wait": "2m",
+      "winrm_username": "Administrator",
+      "winrm_password": "Welcome1!",
+      "winrm_timeout": "2h",
+      "shutdown_timeout": "2h",
+      "shutdown_command": "a:\\sysprep.bat",
+      "guest_os_type": "windows8srv-64",
+      "disk_size": "{{user `disk_size`}}",
+      "vnc_port_min": 5900,
+      "vnc_port_max": 5980,
+      "version": 11,
+      "output_directory":"{{user `output_directory`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/sysprep.bat",
+        "./scripts/Fixnetwork.ps1",
+        "./scripts/Enable-Winrm.ps1"
+      ],
+      "vmx_data": {
+        "memsize": "2048",
+        "numvcpus": "2",
+        "scsi0.virtualDev": "lsisas1068"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `sysprep`}}",
+      "destination": "c:/Windows/Temp/Autounattend_sysprep.xml"
+    },
+    {
+      "type": "powershell",
+      "elevated_user": "{{user `winrm_username`}}",
+      "elevated_password": "{{user `winrm_password`}}",
+      "scripts": [
+        "./scripts/Install-VMwareTools.ps1",
+        "./scripts/RemoveUserApps.ps1",
+        "./scripts/Enable-CredSSP.ps1",
+        "./scripts/Set-Powerplan.ps1"
+      ]
+    },
+    {
+      "type": "windows-update",
+      "filters": [
+        "include:$true"
+      ]
+    },
+    {
+      "type": "windows-restart"
+    }
+  ],
+  "post-processors": [
+    {
+     "type": "vsphere",
+     "host": "vcenter.lstra.com",
+     "username": "administrator@vsphere.local",
+     "password": "Welcome1!",
+     "insecure": "true",
+     "cluster": "esxi-prod.lstra.com",
+     "datacenter":"lstra",
+     "datastore": "Templates",
+     "vm_name": "{{user `template_name`}}",
+     "vm_folder": "Templates", 
+     "disk_mode": "thin",
+     "vm_network": "HTB",
+     "overwrite": "true"
+   }
+  ]
+}
