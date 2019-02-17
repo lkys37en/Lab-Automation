@@ -6,10 +6,19 @@
     "disk_size": "61440",
     "autounattend": "./Answer-files/2008R2/Autounattend.xml",
     "sysprep": "./Answer-files/2008R2/Autounattend_sysprep.xml",
-    "template_name": "WinSrv2008R2x64-Template",
     "winrm_username": "Administrator",
     "winrm_password": "Welcome1!",
-    "output_directory":"Server2008-Output"
+    "output_directory":"Server2008-Output",
+    "vcenter_host": "put vCenter host name here",
+    "vcenter_username": "put vCenter username here",
+    "vcenter_password": "put vCenter password here",
+    "vcenter_cluster" :"put vCenter cluster name  here",
+    "vcenter_datacenter":"put vCenter datacenter name here",
+    "vcenter_datastore":"put vCenter datastore name here",
+    "template_name": "WinSrv2008R2x64-Template",
+    "vcenter_vmfolder":"put vCenter VMFolder here",
+    "disk_mode":"thin",
+    "vcenter_vmnetwork":"put vCenter vm network name here"
 
   },
   "builders": [
@@ -87,19 +96,19 @@
   ],
   "post-processors": [
     {
-     "type": "vsphere",
-     "host": "vcenter.lstra.com",
-     "username": "administrator@vsphere.local",
-     "password": "Welcome1!",
-     "insecure": "true",
-     "cluster": "esxi-prod.lstra.com",
-     "datacenter":"lstra",
-     "datastore": "Templates",
-     "vm_name": "{{user `template_name`}}",
-     "vm_folder": "Templates", 
-     "disk_mode": "thin",
-     "vm_network": "HTB",
-     "overwrite": "true"
+      "type": "vsphere",
+      "host": "{{user `vcenter_host`}}",
+      "username": "{{user `vcenter_username`}}",
+      "password": "{{user `vcenter_password`}}",
+      "insecure": "true",
+      "cluster": "{{user `vcenter_cluster`}}",
+      "datacenter":"{{user `vcenter_datacenter`}}",
+      "datastore": "{{user `vcenter_datastore`}}",
+      "vm_name": "{{user `template_name`}}",
+      "vm_folder": "{{user `vcenter_vmfolder`}}", 
+      "disk_mode": "{{user `disk_mode`}}",
+      "vm_network": "{{user `vcenter_vmnetwork`}}",
+      "overwrite": "true"
    }
   ]
 }
