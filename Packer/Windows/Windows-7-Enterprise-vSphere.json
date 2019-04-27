@@ -1,5 +1,6 @@
 {
   "variables": {
+    "vm_name": "Win7-Ent",
     "iso_url": "./ISO/en_windows_7_x64-1-15.iso",
     "iso_checksum_type": "MD5",
     "iso_checksum": "8A02A85FD89C8E6F0110EC261E5A615A",
@@ -7,13 +8,24 @@
     "autounattend": "./Answer-files/7_Enterprise/Autounattend.xml",
     "sysprep": "./Answer-files/7_Enterprise/Autounattend_sysprep.xml",
     "template_name": "Win7x64-Template",
+    "output_directory": "Win7-Enterprise-Output",
     "winrm_username": "Administrator",
     "winrm_password": "Welcome1!",
-    "output_directory": "Win7-Enterprise-Output"
+    "vcenter_host": "put vCenter host name here",
+    "vcenter_username": "put vCenter username here",
+    "vcenter_password": "put vCenter password here",
+    "vcenter_cluster" :"put vCenter cluster name  here",
+    "vcenter_datacenter":"put vCenter datacenter name here",
+    "vcenter_datastore":"put vCenter datastore name here",
+    "vcenter_vmfolder":"put vCenter VMFolder here",
+    "disk_mode":"thin",
+    "vcenter_vmnetwork":"put vCenter vm network name here"
+
   },
   "builders": [
     {
       "type": "vmware-iso",
+      "vm_name": "{{user `vm_name`}}",
       "communicator": "winrm",
       "iso_url": "{{user `iso_url`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
@@ -55,7 +67,8 @@
       "elevated_user": "{{user `winrm_username`}}",
       "elevated_password": "{{user `winrm_password`}}",
       "scripts": [
-        "./scripts/Enable-CredSSP.ps1"
+        "./scripts/Enable-CredSSP.ps1",
+        "./scripts/Set-Powerplan.ps1"
       ]
     },
     {
@@ -96,17 +109,17 @@
   "post-processors": [
      {
       "type": "vsphere",
-      "host": "vcenter.lstra.com",
-      "username": "administrator@vsphere.local",
-      "password": "Welcome1!",
-      "insecure": "true",
-      "cluster": "esxi-prod.lstra.com",
-      "datacenter":"lstra",
-      "datastore": "Templates",
+      "host": "{{user `vcenter_host`}}",
+      "username": "{{user `vcenter_username`}}",
+      "password": "{{user `vcenter_password`}}",
+      "cluster": "{{user `vcenter_cluster`}}",
+      "datacenter": "{{user `vcenter_datacenter`}}",
+      "datastore": "{{user `vcenter_datastore`}}",
       "vm_name": "{{user `template_name`}}",
-      "vm_folder": "Templates", 
+      "vm_folder": "{{user `vcenter_folder`}}",
+      "vm_network": "{{user `vcenter_network`}}",
       "disk_mode": "thin",
-      "vm_network": "HTB",
+      "insecure": "true",
       "overwrite": "true"
     }
   ]

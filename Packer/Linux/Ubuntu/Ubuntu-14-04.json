@@ -1,19 +1,21 @@
 {
   "variables": {
+    "vm_name": "Ubuntu14.04",
     "iso_url": "./ISO/ubuntu-14.04.5-server-amd64.iso",
     "iso_checksum_type": "md5",
     "iso_checksum": "DD54DC8CFC2A655053D19813C2F9AA9F",
     "disk_size": "61440",
-    "ssh_username": "Administrator",
-    "ssh_password": "Welcome1!",
+    "preseed": "ubuntu14_preseed.cfg",
+    "template_name": "Ubuntux64-14-04-Template",
     "output_directory": "Ubuntu-14-04-Output",
+    "ssh_username": "root",
+    "ssh_password": "Welcome1!",
     "vcenter_host": "put vCenter host name here",
     "vcenter_username": "put vCenter username here",
     "vcenter_password": "put vCenter password here",
     "vcenter_cluster" :"put vCenter cluster name  here",
     "vcenter_datacenter":"put vCenter datacenter name here",
     "vcenter_datastore":"put vCenter datastore name here",
-    "template_name": "Ubuntux64-14-04-Template",
     "vcenter_vmfolder":"put vCenter VMFolder here",
     "disk_mode":"thin",
     "vcenter_vmnetwork":"put vCenter vm network name here"
@@ -60,7 +62,7 @@
         " netcfg/get_domain=vm<wait>",
         " netcfg/get_hostname=Ubuntu14<wait>",
         " noapic<wait>",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed`}}<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
@@ -75,14 +77,12 @@
   "provisioners": [
     {
       "type": "shell",
-      "execute_command": "echo 'Welcome1!' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "scripts": [
         "scripts/update.sh"
       ]
     },
     {
       "type": "shell",
-      "execute_command": "echo 'Welcome1!' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "inline": [
         "shutdown -r now "
       ],
@@ -91,7 +91,6 @@
     },
     {
       "type": "shell",
-      "execute_command": "echo 'Welcome1!' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "pause_before": "60s",
       "scripts": [
         "scripts/vmtools.sh",
@@ -105,15 +104,16 @@
       "host": "{{user `vcenter_host`}}",
       "username": "{{user `vcenter_username`}}",
       "password": "{{user `vcenter_password`}}",
-      "insecure": "true",
       "cluster": "{{user `vcenter_cluster`}}",
-      "datacenter":"{{user `vcenter_datacenter`}}",
+      "datacenter": "{{user `vcenter_datacenter`}}",
       "datastore": "{{user `vcenter_datastore`}}",
       "vm_name": "{{user `template_name`}}",
-      "vm_folder": "{{user `vcenter_vmfolder`}}", 
-      "disk_mode": "{{user `disk_mode`}}",
-      "vm_network": "{{user `vcenter_vmnetwork`}}",
+      "vm_folder": "{{user `vcenter_folder`}}",
+      "vm_network": "{{user `vcenter_network`}}",
+      "disk_mode": "thin",
+      "insecure": "true",
       "overwrite": "true"
+
    }
  ]
 }

@@ -1,21 +1,22 @@
 {
   "variables": {
+    "vm_name": "Server 2016",
     "iso_url": "./ISO/en_windows_server_2016_x64_01-20-18.iso",
     "iso_checksum_type": "md5",
     "iso_checksum": "8DB0E78BA0DA70A98F29A8CFC437F20E",
     "disk_size": "61440",
     "autounattend": "./Answer-files/2016/Autounattend.xml",
     "sysprep": "./Answer-files/2016/Autounattend_sysprep.xml",
+    "template_name": "WinSrv2016x64-Core-Template",
+    "output_directory":"Server2016-Output",
     "winrm_username": "Administrator",
     "winrm_password": "Welcome1!",
-    "output_directory":"Server2016-Output",
     "vcenter_host": "put vCenter host name here",
     "vcenter_username": "put vCenter username here",
     "vcenter_password": "put vCenter password here",
     "vcenter_cluster" :"put vCenter cluster name  here",
     "vcenter_datacenter":"put vCenter datacenter name here",
     "vcenter_datastore":"put vCenter datastore name here",
-    "template_name": "WinSrv2016x64-Core-Template",
     "vcenter_vmfolder":"put vCenter VMFolder here",
     "disk_mode":"thin",
     "vcenter_vmnetwork":"put vCenter vm network name here"
@@ -62,7 +63,8 @@
       "elevated_password": "{{user `winrm_password`}}",
       "scripts": [
         "./scripts/Install-VMwareTools.ps1",
-        "./scripts/Enable-CredSSP.ps1"
+        "./scripts/Enable-CredSSP.ps1",
+        "./scripts/Set-Powerplan.ps1"
       ]
     },
     {
@@ -87,17 +89,16 @@
   ],
   "post-processors": [{
     "type": "vsphere",
-     "host": "{{user `vcenter_host`}}",
-     "username": "{{user `vcenter_username`}}",
-     "password": "{{user `vcenter_password`}}",
-     "insecure": "true",
-     "cluster": "{{user `vcenter_cluster`}}",
-     "datacenter":"{{user `vcenter_datacenter`}}",
-     "datastore": "{{user `vcenter_datastore`}}",
-     "vm_name": "{{user `template_name`}}",
-     "vm_folder": "{{user `vcenter_vmfolder`}}", 
-     "disk_mode": "{{user `disk_mode`}}",
-     "vm_network": "{{user `vcenter_vmnetwork`}}",
-     "overwrite": "true"
-  }]
+    "host": "{{user `vcenter_host`}}",
+    "username": "{{user `vcenter_username`}}",
+    "password": "{{user `vcenter_password`}}",
+    "cluster": "{{user `vcenter_cluster`}}",
+    "datacenter": "{{user `vcenter_datacenter`}}",
+    "datastore": "{{user `vcenter_datastore`}}",
+    "vm_name": "{{user `template_name`}}",
+    "vm_folder": "{{user `vcenter_folder`}}",
+    "vm_network": "{{user `vcenter_network`}}",
+    "disk_mode": "thin",
+    "insecure": "true",
+    "overwrite": "true"
 }

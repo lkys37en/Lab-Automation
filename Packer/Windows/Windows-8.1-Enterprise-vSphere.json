@@ -66,7 +66,8 @@
       "elevated_password": "{{user `winrm_password`}}",
       "scripts": [
         "./scripts/Install-VMwareTools.ps1",
-        "./scripts/Enable-CredSSP.ps1"
+        "./scripts/Enable-CredSSP.ps1",
+        "./scripts/Set-Powerplan.ps1"
       ]
     },
     {
