@@ -1,0 +1,121 @@
+{
+  "variables": {
+    "vm_name": "Ubuntu-16.04",
+    "iso_url": "./ISO/ubuntu-16.04.5-server-amd64.iso",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "24636fd103a2a43c95659f1c3c63718e",
+    "disk_size": "61440",
+    "preseed": "ubuntu16_preseed.cfg",
+    "template_name": "Ubuntux64-16-04-Template",
+    "output_directory": "Ubuntu-16-04-Output",
+    "ssh_username": "root",
+    "ssh_password": "Welcome1!",
+    "vcenter_host": "put vCenter host name here",
+    "vcenter_username": "put vCenter username here",
+    "vcenter_password": "put vCenter password here",
+    "vcenter_cluster" :"put vCenter cluster name  here",
+    "vcenter_datacenter":"put vCenter datacenter name here",
+    "vcenter_datastore":"put vCenter datastore name here",
+    "vcenter_vmfolder":"put vCenter VMFolder here",
+    "disk_mode":"thin",
+    "vcenter_vmnetwork":"put vCenter vm network name here"
+
+  },
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "shutdown_timeout": "2h",
+      "shutdown_command": "shutdown -h now",
+      "guest_os_type": "ubuntu-64",
+      "disk_size": "{{user `disk_size`}}",
+      "vnc_port_min": 5900,
+      "vnc_port_max": 5980,
+      "version": 11,
+      "communicator": "ssh",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "2h",
+      "http_directory": "http",
+      "boot_wait": "5s",
+      "output_directory":"{{user `output_directory`}}",
+      "boot_command": [
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed`}}",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+      "vmx_data": {
+        "memsize": "4096",
+        "numvcpus": "2",
+        "svga.autodetect": "FALSE",
+        "svga.vramSize": "134217728"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/ubuntu16_update.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "shutdown -r now "
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "expect_disconnect": true
+    },
+    {
+      "type": "shell",
+      "pause_before": "60s",
+      "scripts": [
+        "scripts/vmtools.sh",
+        "scripts/cleanup.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+     "type": "vsphere",
+     "host": "vcenter.lstra.com",
+     "username": "administrator@vsphere.local",
+     "password": "$#B!@ck@BC123!@#",
+     "insecure": "true",
+     "cluster": "esxi-prod.lstra.com",
+     "datacenter":"lstra",
+     "datastore": "Templates",
+     "vm_name": "{{user `template_name`}}",
+     "vm_folder": "Templates", 
+     "disk_mode": "thin",
+     "vm_network": "HTB",
+     "overwrite": "true"
+   }
+ ]
+}
