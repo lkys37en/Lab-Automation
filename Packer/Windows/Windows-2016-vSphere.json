@@ -52,7 +52,8 @@
       "scsi0.virtualDev": "lsisas1068"
     }
   }],
-  "provisioners": [{
+  "provisioners": [
+    {
       "type": "file",
       "source": "{{user `sysprep`}}",
       "destination": "c:/Windows/Temp/Autounattend_sysprep.xml"
@@ -63,8 +64,7 @@
       "elevated_password": "{{user `winrm_password`}}",
       "scripts": [
         "./scripts/Install-VMwareTools.ps1",
-        "./scripts/Enable-CredSSP.ps1",
-        "./scripts/Set-Powerplan.ps1"
+        "./scripts/Enable-CredSSP.ps1"
       ]
     },
     {
@@ -74,20 +74,32 @@
       ]
     },
     {
-      "type": "windows-restart"
-    },
-    {
       "type": "powershell",
       "elevated_user": "{{user `winrm_username`}}",
       "elevated_password": "{{user `winrm_password`}}",
       "scripts": [
         "./scripts/Install-NetFramework4.7.2.ps1"
       ]
-    }, {
-      "type": "windows-restart"
+    },
+    {
+      "type": "windows-restart",
+      "restart_timeout": "2h"
+    },
+    {
+      "type": "powershell",
+      "elevated_user": "{{user `winrm_username`}}",
+      "elevated_password": "{{user `winrm_password`}}",
+      "scripts": [
+        "./scripts/Watch-TiWorker.ps1"
+      ]
+    },
+    {
+      "type": "windows-restart",
+      "restart_timeout": "2h"
     }
   ],
-  "post-processors": [{
+  "post-processors": [
+    {
     "type": "vsphere",
     "host": "{{user `vcenter_host`}}",
     "username": "{{user `vcenter_username`}}",
@@ -101,4 +113,6 @@
     "disk_mode": "thin",
     "insecure": "true",
     "overwrite": "true"
+    }
+  ]
 }
