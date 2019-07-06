@@ -1,0 +1,90 @@
+{
+  "variables": {
+    "vm_name": "Kali",
+    "vmwarevmx": "./Kali/Kali.vmx",
+    "iso_url": "./ISO/<insert ISO Name>.iso",
+    "iso_checksum_type": "SHA256",
+    "iso_checksum": "<SHA256 checksum>",
+    "disk_size": "61440",
+    "output_directory": "Kali",
+    "ova_output": "./OVA/<insert OVA Name>.ova",
+    "ssh_username": "root",
+    "ssh_password":"<insert password here>"
+  },
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "vm_name": "{{user `vm_name`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": false,
+      "shutdown_timeout": "2h",
+      "shutdown_command": "shutdown -h now",
+      "guest_os_type": "ubuntu-64",
+      "disk_size": "{{user `disk_size`}}",
+      "vnc_port_min": 5900,
+      "vnc_port_max": 5980,
+      "version": 10,
+      "communicator": "ssh",
+      "ssh_username": "root",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "2h",
+      "http_directory": "http",
+      "boot_wait": "5s",
+      "output_directory":"{{user `output_directory`}}",
+      "boot_command": [
+        "<esc><wait>",
+        "install preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
+        "netcfg/get_hostname={{ .Name }} netcfg/get_domain=vagrantup.com fb=false debconf/frontend=noninteractive console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=us keyboard-configuration/xkb-keymap=us <wait>",
+        "<enter><wait>"
+      ],
+      "vmx_data": {
+        "memsize": "6144",
+        "numvcpus": "2",
+        "svga.autodetect": "FALSE",
+        "svga.vramSize": "134217728"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/Update.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "shutdown -r now "
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "expect_disconnect": true
+    },
+    {
+      "type": "shell",
+      "pause_before": "300s",
+      "scripts": [
+        "scripts/VMTools.sh",
+        "scripts/Config.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "shutdown -r now "
+      ],
+      "inline_shebang": "/bin/bash -e",
+      "expect_disconnect": true
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "shell-local",
+      "inline": ["ovftool {{user `vmwarevmx`}} {{user `ova_output`}}"]
+    }
+  ]
+}
