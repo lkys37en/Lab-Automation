@@ -14,7 +14,7 @@ mkdir -p /opt/tools/Potato > /dev/null 2>&1
 echo "[+] Installing common tools"
 export DEBIAN_FRONTEND=noninteractive > /dev/null 2>&1
 apt-get remove python-pypcap  > /dev/null 2>&1
-apt-get install -y python-libpcap python-ldap libpcap-dev libnetfilter-queue-dev golang wine winbind apt-transport-https sublime-text libgconf-2-4 krb5-user npm neo4j python3.7 python3.7-dev python3-pip libssl-dev libffi-dev python-dev build-essential libssl-dev libffi-dev python-dev enum4linux metasploit-framework > /dev/null 2>&1
+apt-get install -y python-libpcap python-ldap libpcap-dev libnetfilter-queue-dev golang wine winbind apt-transport-https libgconf-2-4 krb5-user npm neo4j python3.7 python3.7-dev python3-pip libssl-dev libffi-dev python-dev build-essential libssl-dev libffi-dev python-dev enum4linux metasploit-framework > /dev/null 2>&1
 
 echo "[+] Installing oh-my-zsh"
 echo exit | sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)" > /dev/null 2>&1
@@ -145,7 +145,7 @@ cd /opt/tools/SILENTTRINITY/Server && pip3 install -r requirements.txt > /dev/nu
 
 echo "[+] Installing jexboss"
 cd /opt/tools && git clone https://github.com/joaomatosf/jexboss.git 
-cd opt/tools/jexboss && pip install -r requirements.txt > /dev/null 2>&1
+cd opt/tools/jexboss && pip install -r requires.txt > /dev/null 2>&1
 
 echo "[+] Installing CME Bleeding Edge"
 cd /opt/tools && git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec > /dev/null 2>&1
